@@ -1,39 +1,46 @@
-let lastTime = 0
+function logEvent(message) {
+    const log = document.getElementById('log')
+    const time = new Date().toLocaleTimeString()
+    log.innerHTML += `<p>${time} — ${message}</p>`
+}
 
+// load backend + browser info on startup
+fetch('/BackendInfo')
+    .then(response => response.json())
+    .then(data => {
+        logEvent(`IP: ${data.ip}`)
+        logEvent(`User agent: ${data.userAgent}`)
+        logEvent(`Language: ${data.language}`)
+        logEvent(`Screen: ${screen.width} x ${screen.height}`)
+        logEvent(`Timezone: ${Intl.DateTimeFormat().resolvedOptions().timeZone}`)
+        logEvent(`Cores: ${navigator.hardwareConcurrency}`)
+        logEvent(`Memory: ${navigator.deviceMemory}GB`)
+    })
+
+// mouse movement
+let lastTime = 0
 document.addEventListener('mousemove', function(event) {
     const now = Date.now()
-    
-    if (now - lastTime > 500){
-        console.log('mouse at', event.clientX, event.clientY)
+    if (now - lastTime > 500) {
+        logEvent(`mouse at ${event.clientX}, ${event.clientY}`)
         lastTime = now
     }
 })
 
+// tab visibility
 document.addEventListener('visibilitychange', function() {
     if (document.visibilityState === 'hidden') {
-        console.log('User left tab')
+        logEvent('user left tab')
     } else {
-        console.log('User came back')
+        logEvent('user came back')
     }
-    
 })
 
-document.addEventListener('copy', function() {
-    console.log('user copied something')
-})
+// copy paste
+document.addEventListener('copy', function() { logEvent('user copied something') })
+document.addEventListener('paste', function() { logEvent('user pasted something') })
 
-document.addEventListener('paste', function() {
-    console.log('user pasted something')
-})
+// window focus
+window.addEventListener('focus', function() { logEvent('window focused') })
+window.addEventListener('blur', function() { logEvent('window lost focus') })
 
-window.addEventListener('focus', function() {
-    console.log('window is focused')
-})
-
-window.addEventListener('blur', function() {
-    console.log('window lost focus')
-})
-
-console.log('screen size', screen.width, 'x', screen.height)
-console.log('language', navigator.language)
-console.log('platform', navigator.platform)
